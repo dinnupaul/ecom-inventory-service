@@ -1,4 +1,4 @@
-package com.ecom.productcatalogservice;
+package com.ecom.inventoryservice;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

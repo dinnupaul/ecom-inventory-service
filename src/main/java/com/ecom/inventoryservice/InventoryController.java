@@ -1,4 +1,4 @@
-package com.ecom.productcatalogservice;
+package com.ecom.inventoryservice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
@@ -10,23 +10,23 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("api/v1/products")
-public class ProductCatalogController
+@RequestMapping("api/v1/inventory")
+public class InventoryController
 {
-    private static final Logger logger = LoggerFactory.getLogger(ProductCatalogController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(InventoryController.class.getName());
     @Autowired
-    ProductRepository productRepository;
+    InventoryRepository inventoryRepository;
 
     @Autowired
     Producer producer = new Producer();
 
     @PostMapping("/update") // URIs SERVE CHUNKS OF DATA UNLIKE URLs WHICH SERVE PAGES
-    public ResponseEntity<String> updateProductDetails(@RequestBody Product product) throws JsonProcessingException {
-        logger.info("initiating product update in Product Catalog Controller");
-        productRepository.save(product);
-        logger.info(" product update completed successfully in productCatalog Table");
-        logger.info(product.getProductname()," initiating product topic");
-        producer.pubUpdateProductDetailsMessage(product.getProductname(), "PRODUCT DETAILS UPDATED SUCCESSFULLY");
+    public ResponseEntity<String> updateInventoryDetails(@RequestBody Inventory inventory) throws JsonProcessingException {
+        logger.info("initiating inventory update in Inventory Controller");
+        inventoryRepository.save(inventory);
+        logger.info(" inventory update completed successfully in inventory Table");
+        logger.info(inventory.getInventoryId()," initiating inventory topic");
+        producer.pubUpdateProductDetailsMessage(inventory.getInventoryId(), "INVENTORY DETAILS UPDATED SUCCESSFULLY");
 
         return ResponseEntity.ok("Details Updated Successfully");
     }
@@ -40,8 +40,8 @@ public class ProductCatalogController
     //}
 
     @GetMapping("/getAll")
-    public ResponseEntity<Product> getProduct(@PathVariable String id) {
-        Product product = productRepository.getReferenceById(id);
+    public ResponseEntity<Inventory> getProduct(@PathVariable String id) {
+        Inventory inventory = inventoryRepository.getReferenceById(id);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
                 //new ResponseEntity(product.get(0));

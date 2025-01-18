@@ -1,4 +1,4 @@
-package com.ecom.productcatalogservice;
+package com.ecom.inventoryservice;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
