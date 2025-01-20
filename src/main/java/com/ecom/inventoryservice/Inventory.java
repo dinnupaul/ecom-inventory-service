@@ -4,25 +4,28 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
+import java.io.Serializable;
+
 @Entity
 @Table(name = "inventory", schema = "inventory_service")
-public class Inventory {
+public class Inventory implements Serializable {
 
     @Id
-    @Column(name = "inventory_id", nullable = false, length = 50)
-    private String inventoryId;
-    @Column(name = "product_id", length = 50)
+    //@Column(name = "inventory_id", nullable = false, length = 50)
+    //private String inventoryId;
+    @Column(name = "product_id", nullable = false, length = 50)
     private String productId;
     @Column(name = "quantity", length = 200)
     private Integer quantity;
 
-    public String getInventoryId() {
+    /** public String getInventoryId() {
         return inventoryId;
     }
 
     public void setInventoryId(String inventoryId) {
         this.inventoryId = inventoryId;
-    }
+    }***/
 
     public String getProductId() {
         return productId;

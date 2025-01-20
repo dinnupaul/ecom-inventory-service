@@ -15,7 +15,7 @@ import java.util.Random;
 public class Producer
 {
     private static final Logger logger = LoggerFactory.getLogger(Producer.class);
-    private static final String TOPIC = "product-topic";
+    private static final String TOPIC = "inventory-topic";
 
     @Autowired //DEPENDENCY INJECTION PROMISE FULFILLED AT RUNTIME
     private KafkaTemplate<String, String> kafkaTemplate ;
@@ -38,6 +38,29 @@ public class Producer
 
         logger.info(String.format("#### -> Producing message -> %s", datum));
         this.kafkaTemplate.send(TOPIC,datum);
+    }
+
+
+    /***public void publishInventoryMessage(OrderRequest request) throws JsonProcessingException {
+        OrderEvent event = new OrderEvent(request.getOrderId(), "ORDER_CREATED", request);
+        String datum =  objectMapper.writeValueAsString(event);
+        kafkaTemplate.send("order-topic", request.getOrderId(), datum);
+
+
+    }***/
+
+    public void publishInventoryStatusMessage(OrderRequest request, String inventoryStatus, SagaState sagaState) throws JsonProcessingException {
+        // Publish inventory response
+        InventoryEvent inventoryEvent = new InventoryEvent(request.getOrderId(), inventoryStatus, request,sagaState);
+        String inventoryEventJson = objectMapper.writeValueAsString(inventoryEvent);
+        kafkaTemplate.send("inventory-topic", request.getOrderId(), inventoryEventJson);
+    }
+
+    public void publishOrderRetryMessage(OrderRequest request, String inventoryStatus) throws JsonProcessingException {
+        // Publish inventory response
+        InterimEvent interimEvent = new InterimEvent(request.getOrderId(), "Inventory", inventoryStatus);
+        String interimEventJson = objectMapper.writeValueAsString(interimEvent);
+        kafkaTemplate.send("order-retry-topic", request.getOrderId(), interimEventJson);
     }
 
 }
