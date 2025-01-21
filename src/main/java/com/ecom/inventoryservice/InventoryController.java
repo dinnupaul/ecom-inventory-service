@@ -60,11 +60,11 @@ public class InventoryController {
         sagaState.updateStepStatus("Inventory", status);
         sagaState.setCurrentState(status);
         redisTemplate.opsForValue().set("ORDER_" + orderRequest.getOrderId(), sagaState);
-        if(isAvailable){
+       // if(isAvailable){
             // Publish inventory status event
             logger.info("Publish Inventory status event");
             producer.publishInventoryStatusMessage(orderRequest, status,sagaState);
-        }
+        //}
 
 
 
