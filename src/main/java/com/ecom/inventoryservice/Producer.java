@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -40,18 +41,10 @@ public class Producer
         this.kafkaTemplate.send(TOPIC,datum);
     }
 
-
-    /***public void publishInventoryMessage(OrderRequest request) throws JsonProcessingException {
-        OrderEvent event = new OrderEvent(request.getOrderId(), "ORDER_CREATED", request);
-        String datum =  objectMapper.writeValueAsString(event);
-        kafkaTemplate.send("order-topic", request.getOrderId(), datum);
-
-
-    }***/
-
     public void publishInventoryStatusMessage(OrderRequest request, String inventoryStatus, SagaState sagaState) throws JsonProcessingException {
         // Publish inventory response
-        InventoryEvent inventoryEvent = new InventoryEvent(request.getOrderId(), inventoryStatus, request,sagaState);
+        String traceId = MDC.get("traceId");
+        InventoryEvent inventoryEvent = new InventoryEvent(request.getOrderId(), inventoryStatus, request,sagaState,traceId);
         String inventoryEventJson = objectMapper.writeValueAsString(inventoryEvent);
         kafkaTemplate.send("inventory-topic", request.getOrderId(), inventoryEventJson);
     }

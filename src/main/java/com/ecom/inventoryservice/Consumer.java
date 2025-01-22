@@ -3,6 +3,7 @@ package com.ecom.inventoryservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,17 @@ public class Consumer
     @KafkaListener(topics = "order-topic", groupId = "ecom-inventory-service")
     public void consumeOrderEvents(String message) throws IOException
     {
-        //analytics_counter.increment();
-        //Analytic datum =  mapper.readValue(message,Analytic.class);
         logger.info(String.format("#### -> about to consume order topic"));
         OrderEvent orderEvent = mapper.readValue(message, OrderEvent.class);
         logger.info(String.format("#### -> Consumed message order topic-> %s", orderEvent.getOrderId()));
 
+        // Add trace ID to MDC
+       String traceId = orderEvent.getTraceId();
+        if (traceId != null) {
+            MDC.put("traceId", traceId);
+        }
+
+        logger.info("Consumed message with trace ID: {}", traceId);
         if ("ORDER_CREATED".equals(orderEvent.getEventType())) {
             // Check product availability
             invController.checkAndPublishInventoryMessage(orderEvent.getRequest(),orderEvent.getSagaState());

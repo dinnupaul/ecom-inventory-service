@@ -48,32 +48,26 @@ public class InventoryController {
     }
 
     public void checkAndPublishInventoryMessage(OrderRequest orderRequest,SagaState sagaState) throws JsonProcessingException {
-         Inventory inventory = getProductAvailability(orderRequest.getProductId());
-        boolean isAvailable = false;
+       Inventory inventory = getProductAvailability(orderRequest.getProductId());
+       boolean isAvailable = false;
          if (inventory.getQuantity() >= orderRequest.getQuantity()) {
             isAvailable = true;
-
+            logger.info("initiating inventory update in Inventory Controller");
             inventory.setQuantity(inventory.getQuantity() - orderRequest.getQuantity());
             inventoryRepository.save(inventory);
         }
         String status = isAvailable ? "INVENTORY_CONFIRMED" : "INVENTORY_FAILED";
         sagaState.updateStepStatus("Inventory", status);
         sagaState.setCurrentState(status);
+        logger.info("save inventory sagaState redis from Inventory Controller");
         redisTemplate.opsForValue().set("ORDER_" + orderRequest.getOrderId(), sagaState);
-       // if(isAvailable){
-            // Publish inventory status event
-            logger.info("Publish Inventory status event");
-            producer.publishInventoryStatusMessage(orderRequest, status,sagaState);
-        //}
-
-
-
-     //   producer.publishOrderRetryMessage(orderRequest, status);
+        // Publish inventory status event
+        logger.info("Publish Inventory status event");
+        producer.publishInventoryStatusMessage(orderRequest, status,sagaState);
     }
 
     public Inventory getProductAvailability(String productId) {
-        //Optional<Inventory> inventory = inventoryRepository.findById(productId);
-        // return inventory.isPresent();
+        logger.info("check product availability in Inventory Controller");
         return inventoryRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found")); // Simulate available product
     }
